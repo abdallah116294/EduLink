@@ -2,6 +2,7 @@
 using EduLink.Core.IServices;
 using EduLink.Core.IServices.UserService;
 using EduLink.Repository.Repositories;
+using EduLink.Service;
 using EduLink.Service.UserService;
 using EduLink.Utilities.DTO.User;
 using EduLink.Utilities.Helpers;
@@ -18,9 +19,12 @@ namespace EduLink.API.Extensions
             services.AddSingleton(emailConfig); // Register EmailConfiguration as a singleton service
             //Repository
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             //Service 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAdminService, AdminService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();

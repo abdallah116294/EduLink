@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace EduLink.Core.IRepositories
 {
-    internal interface IUnitOfWork
+    public interface IUnitOfWork:IAsyncDisposable
     {
+        IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class;
+        Task<int> CompleteAsync();
     }
 }

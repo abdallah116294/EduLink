@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace EduLink.Core.IRepositories
 {
-    internal interface IGenericRepository
+    public interface IGenericRepository<T>where T:class
     {
+        //Get all
+        Task<List<T>> GetAllAsync();
+        //Get By Id
+        Task<T> GetByIdAsync(int id);
+        // Set
+        Task AddAsync(T entity);
+        // Update 
+        Task UpdateAsync(T entity);
+        Task UpdateAsync(int id, Action<T> updateAction);
+        // Delete
+        Task DeleteAsync(int id);
     }
 }
