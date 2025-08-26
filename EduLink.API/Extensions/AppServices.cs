@@ -17,6 +17,7 @@ namespace EduLink.API.Extensions
             services.Configure<EmailConfiguration>(configuration.GetSection("EmialConfiguration"));
             var emailConfig = configuration.GetSection("EmialConfiguration").Get<EmailConfiguration>();
             services.AddSingleton(emailConfig); // Register EmailConfiguration as a singleton service
+            services.AddAutoMapper(typeof(MappingProfile));
             //Repository
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -25,6 +26,9 @@ namespace EduLink.API.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IParentService, ParentService>();
+            services.AddScoped<IAcademicYearService, AcademicYearService>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();
