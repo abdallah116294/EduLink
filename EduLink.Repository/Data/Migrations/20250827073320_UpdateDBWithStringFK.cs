@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EduLink.Repository.Data.Migrations
 {
-    public partial class RestrictDeleteMigration : Migration
+    public partial class UpdateDBWithStringFK : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

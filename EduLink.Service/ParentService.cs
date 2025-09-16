@@ -1,8 +1,10 @@
 ﻿using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.Specifications;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.Parent;
+using EduLink.Utilities.DTO.Student;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -60,12 +62,12 @@ namespace EduLink.Service
                     FullName = user.FullName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
-                    Students = students.Select(s => new StudentResponseDto
-                    {
-                        Id = s.Id,
-                        FullName = s.User.FullName,
-                        Grade = s.Grade.Select(g=>g.ExamType).ToList().ToString(),
-                    }).ToList()
+                    //Students = students.Select(s => new StudentResponseDto
+                    //{
+                    //    Id = s.Id,
+                    //    FullName = s.User.FullName,
+                    //    Grade = s.Grade.Select(g=>g.ExamType).ToList().ToString(),
+                    //}).ToList()
                 };
 
                 return new ResponseDTO<object>
@@ -86,17 +88,45 @@ namespace EduLink.Service
             }
         }
 
-        public Task<ResponseDTO<object>> DeleteParent(int id)
+        public async Task<ResponseDTO<object>> DeleteParent(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var parent=await _unitOfWork.Repository<Parent>().GetByIdAsync(id);
+                if(parent==null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No Parent Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+              await  _unitOfWork.Repository<Parent>().DeleteAsync(id);
+               await _unitOfWork.CompleteAsync();
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = true,
+                        Message = "Delete Parent Succesful",
+                    };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+
         }
 
         public async Task<ResponseDTO<object>> GetAllParent()
         {
             try
             {
+                var parentSpec = new ParentSpecification();
                 var parentRepo = _unitOfWork.Repository<Parent>();
-                var parents = await parentRepo.GetAllAsync();
+                var parents = await parentRepo.GetAllAsync(parentSpec);
                 if (parents == null)
                     return new ResponseDTO<object>
                     {
@@ -104,23 +134,39 @@ namespace EduLink.Service
                         Message = "No Parents Found",
                         ErrorCode = ErrorCodes.NotFound,
                     };
-               
-                //var parentsDTo = parents.Select(parent => new ParentResponseDTO 
-                //{
-                //    Id = parent.Id,
-                //    Occupation = parent.Occupation,
-                //    Address = parent.Address,
-                //    UserId = parent.UserId,
-                //    FullName = parent.User.FullName,
-                //    Email = parent.User.Email,
-                //    PhoneNumber =parent.User.PhoneNumber ,
+                var Student = parents.FirstOrDefault().Students.FirstOrDefault().ClassId;
+                Console.WriteLine($"Clsss ID of Stuednt:{Student}");
+                var parentsDTo = parents.Select(parent => new ParentResponseDTO
+                {
+                    Id = parent.Id,
+                    Occupation = parent.Occupation,
+                    Address = parent.Address,
+                    UserId = parent.UserId,
+                    FullName = parent.User.FullName,
+                    Email = parent.User.Email,
+                    PhoneNumber = parent.User.PhoneNumber,
+                    Students = parent.Students.Select(p => new StudentResponseDTO
+                    {
+                        UserId = p.UserId,
+                        AdmissionNumber = p.AdmissionNumber,
+                        ClassId = p.ClassId,
+                        ClassName = p.Class.ClassName,
+                        Email = p.User.Email,
+                        DateOfBirth = p.DateOfBirth,
+                        EnrollmentDate = p.EnrollmentDate,
+                        FullName = p.User.FullName,
+                        Id = p.Id,
+                        ParentId = p.ParentId,
+                        ParentName = parent.User.FullName
+                    }).ToList()
 
-                //});
+
+                });
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
                     Message = "Get All Parents",
-                    Data = parents
+                    Data = parentsDTo
                 };
             }
             catch (Exception ex)
@@ -134,9 +180,103 @@ namespace EduLink.Service
             }
         }
 
-        public Task<ResponseDTO<object>> GetParent(string usrId)
+        public async Task<ResponseDTO<object>> GetParent(string usrId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var parentSpec = new ParentSpecification(usrId);
+                var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(parentSpec);
+                if (parent == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Not Parent Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                var parentDTO = new ParentResponseDTO
+                {
+                    Id = parent.Id,
+                    Occupation = parent.Occupation,
+                    Address = parent.Address,
+                    UserId = usrId,
+                    FullName = parent.User.FullName,
+                    Email = parent.User.Email,
+                    PhoneNumber = parent.User.PhoneNumber,
+                    Students = parent.Students.Select(p => new StudentResponseDTO
+                    {
+                        UserId = p.UserId,
+                        AdmissionNumber = p.AdmissionNumber,
+                        ClassId = p.ClassId,
+                        ClassName = p.Class.ClassName,
+                        Email = p.User.Email,
+                        DateOfBirth = p.DateOfBirth,
+                        EnrollmentDate = p.EnrollmentDate,
+                        FullName = p.User.FullName,
+                        Id = p.Id,
+                        ParentId = p.ParentId,
+                        ParentName = parent.User.FullName
+                    }).ToList()
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get Parent Succesful",
+                    Data = parentDTO,
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetStudentByParentId(string userId)
+        {
+            try
+            {
+                var parentSpec = new ParentSpecification(userId);
+                var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(parentSpec);
+                if (parent == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No Parent Found",
+                        ErrorCode=ErrorCodes.NotFound,
+                    };
+                var students = parent.Students.Select(p => new StudentResponseDTO {
+                    UserId = p.UserId,
+                    AdmissionNumber = p.AdmissionNumber,
+                    ClassId = p.ClassId,
+                    ClassName = p.Class.ClassName,
+                    Email = p.User.Email,
+                    DateOfBirth = p.DateOfBirth,
+                    EnrollmentDate = p.EnrollmentDate,
+                    FullName = p.User.FullName,
+                    Id = p.Id,
+                    ParentId = p.ParentId,
+                    ParentName = parent.User.FullName
+
+                }).ToList();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get Students of Parent Successful",
+                    Data = students,
+                };
+            }catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
         }
 
         public Task<ResponseDTO<object>> UpdateParent(UpdateParentDTO dto)

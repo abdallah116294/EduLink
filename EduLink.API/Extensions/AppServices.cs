@@ -29,6 +29,11 @@ namespace EduLink.API.Extensions
             services.AddScoped<IParentService, ParentService>();
             services.AddScoped<IAcademicYearService, AcademicYearService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IClassService, ClassService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<IAttendanceService, AttendanceService>();
+            services.AddScoped<IAcademicStaffService, AcademicStaffService>();
+            services.AddScoped<INonAcademicStaffService, NonAcademicStaffService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();

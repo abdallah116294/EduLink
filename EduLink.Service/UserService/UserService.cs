@@ -79,9 +79,39 @@ namespace EduLink.Service.UserService
             throw new NotImplementedException();
         }
 
-        public Task<User> GetUserByID(string id)
+        public async Task<ResponseDTO<object>> GetUserByID(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userRepository.GetUserById(id);
+                if (user == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No User with ID Found",
+                        Data = null,
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "User Found",
+                    Data = user
+                };
+
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    Data=null,
+                    ErrorCode=ErrorCodes.Exception
+                };
+            }
         }
 
         public async Task<ResponseDTO<object>> LoginAsync(LoginDTO dto)
@@ -155,6 +185,23 @@ namespace EduLink.Service.UserService
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(dto.Email))
+                {
+                    dto.Email = GenerateEmail(dto.FirstName, dto.LastName);
+                }
+                else
+                {
+                    var existingUser = await _userRepository.FindByEmailAsync(dto.Email);
+                    if (existingUser != null)
+                    {
+                        return new ResponseDTO<object>
+                        {
+                            IsSuccess = false,
+                            Message = "Email is already in use.",
+                            ErrorCode = ErrorCodes.BadRequest,
+                        };
+                    }
+                }
                 var result = await _userRepository.RegisterAsync(dto, userRole);
                 if (!result.Succeeded)
                     return new ResponseDTO<object>
@@ -231,6 +278,13 @@ namespace EduLink.Service.UserService
                     ErrorCode = ErrorCodes.Exception,
                 };
             }
+        }
+        protected String GenerateEmail(string FName, string LName)
+        {
+            if (string.IsNullOrWhiteSpace(FName) || string.IsNullOrWhiteSpace(LName))
+                throw new ArgumentException("First name and last name are required.");
+            var email = $"{FName.Trim().ToLower()}.{LName.Trim().ToLower()}@edulink.com";
+            return email;
         }
     }
 }

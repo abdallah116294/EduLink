@@ -1,7 +1,10 @@
 ﻿using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.Specifications;
+using EduLink.Core.Specifications.Parames;
 using EduLink.Utilities.DTO;
+using EduLink.Utilities.DTO.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -54,6 +57,97 @@ namespace EduLink.Service
                 };
 
             }catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetAdminById(string Id)
+        {
+            try
+            {
+                var spec = new AdminSpecification(new AdminParames
+                {
+                    Id = Id,
+                    Role=UserRole.Admin
+                });
+                var userRepo = _unitOfWork.Repository<User>();
+                var admins = await userRepo.GetByIdAsync(spec);
+                if (admins == null )
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No Admins Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                var response = new AdminResponsDTO
+                {
+                    Id = admins.Id,
+                    FullName = admins.FullName,
+                    Role = admins.Role.ToString(),
+                    PhoneNumber = admins.PhoneNumber,
+                    CreatedAt = admins.CreateAt,
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get All Admins",
+                    Data = response,
+
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetAllAdmins()
+        {
+            try
+            {
+                var spec = new AdminSpecification(new AdminParames 
+                {
+                    Role=UserRole.Admin,
+                });
+                var userRepo = _unitOfWork.Repository<User>();
+                var admins = await userRepo.GetAllAsync(spec);
+                if (admins == null || !admins.Any())
+                    return new ResponseDTO<object> 
+                    {
+                        IsSuccess=false,
+                        Message="No Admins Found",
+                        ErrorCode=ErrorCodes.NotFound,
+                    };
+                var response = admins.Select(ad => new AdminResponsDTO
+                {
+                    Id=ad.Id,
+                    FullName=ad.FullName,
+                    Role=ad.Role.ToString(),
+                    PhoneNumber =ad.PhoneNumber,
+                    CreatedAt=ad.CreateAt,
+                }).ToList();
+                return new ResponseDTO<object>
+                {
+                     IsSuccess=true,
+                     Message="Get All Admins",
+                     Data= response,
+
+                };
+
+            }
+            catch(Exception ex)
             {
                 return new ResponseDTO<object>
                 {
@@ -214,5 +308,6 @@ namespace EduLink.Service
                 };
             }
         }
+
     }
 }

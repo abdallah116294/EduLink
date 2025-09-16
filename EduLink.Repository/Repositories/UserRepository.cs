@@ -1,8 +1,11 @@
 ﻿using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.Specifications;
+using EduLink.Utilities.DTO.Student;
 using EduLink.Utilities.DTO.User;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +20,15 @@ namespace EduLink.Repository.Repositories
         private readonly SignInManager<User> _signInManager;
         private RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emEmailService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserRepository(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, IEmailService emEmailService)
+        public UserRepository(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, IEmailService emEmailService,IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _emEmailService = emEmailService;
+            _unitOfWork=unitOfWork;
         }
 
         public async Task<User> FindByEmailAsync(string email)
@@ -47,9 +52,40 @@ namespace EduLink.Repository.Repositories
 
         }
 
-        public Task<User> GetUserById(string id)
+        public async Task<UserReponseDTO> GetUserById(string id)
         {
-            throw new NotImplementedException();
+         
+            var userSpec = new UserWithDetailsSpecification(id);
+            var user = await _userManager.Users.Include(u => u.Student)
+           .ThenInclude(s => s.Parent)
+            .ThenInclude(p => p.User)
+           .Include(u => u.Student)
+              .ThenInclude(s => s.Class)
+         .FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return null;
+           
+            var userDto = new UserReponseDTO
+            {
+                CreateAt = user.CreateAt,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Role = user.Role.ToString(),
+                Student = new StudentResponseDTO
+                {
+                    AdmissionNumber = user.Student.AdmissionNumber,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Id = user.Student.Id,
+                    DateOfBirth = user.Student.DateOfBirth,
+                    EnrollmentDate = user.Student.EnrollmentDate,
+                    ParentId = user.Student.ParentId,
+                    ParentName = user.Student.Parent.User.FullName,
+                    ClassId = user.Student.ClassId,
+                    ClassName = user.Student.Class.ClassName,
+                    UserId = user.Id
+                }
+            };
+            return userDto;
         }
 
         public async Task<bool> LoginAsync(LoginDTO dto)
@@ -70,6 +106,7 @@ namespace EduLink.Repository.Repositories
 
         public async Task<IdentityResult> RegisterAsync(RegisterDTO dto, string userRole)
         {
+
             var normalizedRole = userRole.ToUpper();
             if (!await _roleManager.RoleExistsAsync(normalizedRole))
             {

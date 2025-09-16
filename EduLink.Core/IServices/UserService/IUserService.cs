@@ -17,6 +17,6 @@ namespace EduLink.Core.IServices.UserService
         Task<ResponseDTO<object>> ForgetPassword(ForgetPasswordDTO dto);
         Task<ResponseDTO<object>> ResetPasswordAsync(string email, string otp, string newPassword);
         Task<ResponseDTO<object>> GetAllUser();
-        Task<User> GetUserByID(string id);
+        Task<ResponseDTO<object>> GetUserByID(string id);
     }
 }

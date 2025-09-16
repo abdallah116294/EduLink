@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduLink.Repository.Data.Migrations
 {
     [DbContext(typeof(EduLinkDbContext))]
-    [Migration("20250825101420_RestrictDeleteMigration")]
-    partial class RestrictDeleteMigration
+    [Migration("20250827073320_UpdateDBWithStringFK")]
+    partial class UpdateDBWithStringFK
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

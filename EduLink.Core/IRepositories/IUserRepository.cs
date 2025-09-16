@@ -20,7 +20,7 @@ namespace EduLink.Core.IRepositories
         Task<IdentityResult> ResetPasswordAsync(User user, string resetToken, string newPassword);
         Task<string> GeneratePasswordResetTokenAsync(User user);
         Task<User> FindByEmailAsync(string email);
-        Task<User> GetUserById(string id);
+        Task<UserReponseDTO> GetUserById(string id);
         Task<List<User>> GetAllUsers();
     }
 }

@@ -19,6 +19,7 @@ namespace EduLink.Repository.Data.Configurations
             entity.Property(d => d.DepartmentName)
             .IsRequired()
             .HasMaxLength(150);
+            entity.Property(d => d.HeadOfDepartmentId).IsRequired();
             entity.HasMany(d => d.AcademicStaff)
             .WithOne(a => a.Department)
             .HasForeignKey(a => a.DepartmentId)

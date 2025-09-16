@@ -15,5 +15,6 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>> DeleteParent(int id);
         Task<ResponseDTO<object>> GetParent(string usrId);
         Task<ResponseDTO<object>> GetAllParent();
+        Task<ResponseDTO<object>> GetStudentByParentId(string userId);
     }
 }

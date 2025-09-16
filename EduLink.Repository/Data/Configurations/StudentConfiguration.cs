@@ -38,9 +38,9 @@ namespace EduLink.Repository.Data.Configurations
             //One-to-Many relationShips 
             entity.HasMany(s => s.Attendance)
                 .WithOne(a => a.Student)
-                .HasForeignKey(a => a.StudentId);
-            entity.HasMany(s => s.Grade).WithOne(g => g.Student).HasForeignKey(g => g.StudentId);
-            entity.HasMany(s => s.Fee).WithOne(f => f.Student).HasForeignKey(f => f.StudentId);
+                .HasForeignKey(a => a.StudentId).IsRequired();
+            entity.HasMany(s => s.Grade).WithOne(g => g.Student).HasForeignKey(g => g.StudentId).IsRequired();
+            entity.HasMany(s => s.Fee).WithOne(f => f.Student).HasForeignKey(f => f.StudentId).IsRequired();
         }
     }
 }

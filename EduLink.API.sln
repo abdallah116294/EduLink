@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36127.28 d17.14
+VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduLink.API", "EduLink.API\EduLink.API.csproj", "{97E01876-0484-4A41-BAAF-5A95793CDE1C}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduLink.Service", "EduLink.Service\EduLink.Service.csproj", "{D48D6B87-9455-4B26-96CD-24014B430C9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduLink.Utilities", "EduLink.Utilities\EduLink.Utilities.csproj", "{433F2A08-5999-4202-9937-F267F564E588}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edulink.Tests", "Edulink.Tests\Edulink.Tests.csproj", "{6DBC520F-75F3-49DE-B419-6F1B73784207}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{433F2A08-5999-4202-9937-F267F564E588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{433F2A08-5999-4202-9937-F267F564E588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{433F2A08-5999-4202-9937-F267F564E588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DBC520F-75F3-49DE-B419-6F1B73784207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DBC520F-75F3-49DE-B419-6F1B73784207}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DBC520F-75F3-49DE-B419-6F1B73784207}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DBC520F-75F3-49DE-B419-6F1B73784207}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

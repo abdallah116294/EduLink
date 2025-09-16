@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EduLink.Core\EduLink.Core.csproj" />
+    <ProjectReference Include="..\EduLink.Repository\EduLink.Repository.csproj" />
   </ItemGroup>
 
 </Project>

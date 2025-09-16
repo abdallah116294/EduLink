@@ -1,4 +1,5 @@
 ﻿using EduLink.Core.IRepositories;
+using EduLink.Core.Specifications;
 using EduLink.Repository.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -35,10 +36,23 @@ namespace EduLink.Repository.Repositories
             return entities;
         }
 
+        public async Task<List<T>> GetAllAsync(ISpecifications<T> spec)
+        {
+           return await ApplaySpecification(spec).ToListAsync();
+        }
+        private IQueryable<T> ApplaySpecification(ISpecifications<T> spec)
+        {
+            return SpecificationEvalutor<T>.GetQuery(_context.Set<T>(), spec);
+        }
         public async Task<T> GetByIdAsync(int id)
         {
             var entity = await _context.Set<T>().FindAsync(id);
             return entity;
+        }
+
+        public async Task<T> GetByIdAsync(ISpecifications<T> spec)
+        {
+            return await ApplaySpecification(spec).FirstOrDefaultAsync();
         }
 
         public async Task UpdateAsync(T entity)

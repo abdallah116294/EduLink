@@ -15,7 +15,7 @@ namespace EduLink.API.Controllers
         {
             _adminService = adminService;
         }
-        [Authorize(Roles ="ADMIN")]
+        //[Authorize(Roles ="ADMIN")]
         [HttpGet("get-all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -55,6 +55,18 @@ namespace EduLink.API.Controllers
         public async Task<IActionResult>ReomveRoleFromUser(string userId,string role)
         {
             var res = await _adminService.ReomveRoleFromUser(userId, role);
+            return CreateResponse(res);
+        }
+        [HttpGet("get-all-admins")]
+        public async Task<IActionResult> GetAllAdmins()
+        {
+            var res = await _adminService.GetAllAdmins();
+            return CreateResponse(res);
+        }
+        [HttpGet("get-admin-byId")]
+        public async Task<IActionResult> GetAdminByID(string Id)
+        {
+            var res = await _adminService.GetAdminById(Id);
             return CreateResponse(res);
         }
     }

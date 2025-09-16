@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EduLink.Utilities.DTO.Student;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,6 @@ namespace EduLink.Utilities.DTO.Parent
         public string FullName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public ICollection<StudentResponseDto> Students { get; set; }
+        public ICollection<StudentResponseDTO> Students { get; set; }
     }
 }

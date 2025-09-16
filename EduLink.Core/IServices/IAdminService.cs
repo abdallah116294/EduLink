@@ -16,5 +16,8 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>>GetRolesOfUser(string userId);
         Task<ResponseDTO<object>> AssignOrUpdateRoleForUser(string  userId,string newRole);
         Task<ResponseDTO<object>> ReomveRoleFromUser(string userId, string role);
+        Task<ResponseDTO<object>> GetAllAdmins();
+        Task<ResponseDTO<object>> GetAdminById(string Id);
+
     }
 }

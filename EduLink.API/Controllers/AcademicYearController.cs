@@ -34,7 +34,7 @@ namespace EduLink.API.Controllers
         }
         [HttpPut("update-academic-year")]
         public async Task<IActionResult> UpdateAcademicYear(UpdateAcademicYearDTO dto)
-        {
+        { 
             var res = await _academicYearService.UpdateAcademicYear(dto);
             return CreateResponse(res);
         }
