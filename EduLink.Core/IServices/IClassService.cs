@@ -15,5 +15,8 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>> GetAllClassesAsync();
         Task<ResponseDTO<object>> UpdateClassAsync(int id, UpdateClassDTO updateClassDTO);
         Task<ResponseDTO<object>> DeleteClassAsync(int id);
+        Task<ResponseDTO<object>>GetStudentInClass(int classId);
+        Task<ResponseDTO<object>>GetSubjectsInClass(int classId);
+
     }
 }

@@ -54,6 +54,22 @@ namespace EduLink.API.Controllers
             }
             return CreateResponse(result);
         }
+        [HttpGet("get-students-in-class/{classId}")]
+        public async Task<IActionResult> GetStudentsInClass(int classId)
+        {
+            var result = await _classService.GetStudentInClass(classId);
+            if (result.IsSuccess)
+            {
+                return CreateResponse(result);
+            }
+            return CreateResponse(result);
+        }
+        [HttpGet("get-subjects-by{classId}")]
+        public async Task<IActionResult>GetSubjectByClassId(int classId)
+        {
+            var result = await _classService.GetSubjectsInClass(classId);
+            return CreateResponse(result);
+        }
         [HttpDelete("delete-class/{id}")]
         public async Task<IActionResult> DeleteClass(int id)
         {
@@ -64,5 +80,6 @@ namespace EduLink.API.Controllers
             }
             return CreateResponse(result);
         }
+
     }
 }

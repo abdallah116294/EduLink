@@ -30,9 +30,9 @@ namespace EduLink.API.Controllers
             var result = await _userService.RegisterAsync(dto, "Admin");
             return CreateResponse(result);
         }
-        [Authorize(Roles = "ADMIN")]
+        ///[Authorize(Roles = "ADMIN")]
         [HttpPost("register-AcademicStaff")]
-        public async Task<IActionResult> RegisterAcademicStaff([FromBody]RegisterDTO dto)
+        public async Task<IActionResult> RegisterAcademicStaff([FromForm] RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "Academic");
             return CreateResponse(result);

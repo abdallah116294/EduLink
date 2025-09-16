@@ -5,6 +5,7 @@ using EduLink.Core.IServices;
 using EduLink.Core.Specifications;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.Classes;
+using EduLink.Utilities.DTO.Student;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -156,7 +157,7 @@ namespace EduLink.Service
                         Message = "Not Class found with this ID",
                         ErrorCode=ErrorCodes.NotFound
                     };
-                // var mappedClass = _mapper.Map<ClassResponsDTO>(classReq);
+               
                 var result = new ClassResponsDTO 
                 {
                     Id=classReq.Id,
@@ -189,6 +190,90 @@ namespace EduLink.Service
                 };
 
             }catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accoured{ex.Message}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetStudentInClass(int classId)
+        {
+            try
+            {
+                var classSpec = new ClassesWithSpecification(classId);
+                var classRepo = _unitOfWork.Repository<Class>();
+                var classReq = await classRepo.GetByIdAsync(classSpec);
+                if (classReq == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Not Class found with this ID",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                var studentsInClass = classReq.Students.Select(s => new StudentResponseDTO
+                {
+                    Id = s.Id,
+                    AdmissionNumber = s.AdmissionNumber,
+                    DateOfBirth = s.DateOfBirth,
+                    EnrollmentDate = s.EnrollmentDate,
+                    ParentId = s.ParentId,
+                    ParentName = s.Parent.User.FullName,
+                    ClassId = s.ClassId,
+                    ClassName = s.Class.ClassName,
+                    UserId = s.UserId,
+                    Email= s.User.Email,
+                    FullName = s.User.FullName
+                }).ToList();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get Students in Class Succesful",
+                    Data = studentsInClass
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accoured{ex.Message}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetSubjectsInClass(int classId)
+        {
+            try
+            {
+
+                var classSpec = new ClassesWithSpecification(classId);
+                var classRepo = _unitOfWork.Repository<Class>();
+                var classReq = await classRepo.GetByIdAsync(classSpec);
+                if (classReq == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Not Class found with this ID",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                var subjectResponse = classReq.Subject.Select(su => new SubjectResponseDto 
+                {
+                    Id=su.Id,
+                    SubjectName=su.SubjectName
+                }).ToList();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get Subjects in Class",
+                    Data = subjectResponse
+                };
+            }
+            catch (Exception ex)
             {
                 return new ResponseDTO<object>
                 {

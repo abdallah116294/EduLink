@@ -1,4 +1,5 @@
 ﻿using EduLink.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +14,30 @@ namespace EduLink.Core.Specifications
             c => c.Id == id
             )
         {
-            Includes.Add(c => c.AcadmicYear);
-            Includes.Add(c => c.Students);
-            Includes.Add(c => c.Exam);
-            Includes.Add(c => c.Subject);
+            AddInclude(c => c.AcadmicYear);
+           
+            AddInclude(c=>c.Include(c=>c.Students)
+                             .ThenInclude(s=>s.User));
+            AddInclude(c=>c.Include(c=>c.Students)
+                             .ThenInclude(s=>s.Parent)
+                                .ThenInclude(p=>p.User)
+                             );
+            AddInclude(c => c.Exam);
+           AddInclude(c => c.Subject);
         }
 
         public ClassesWithSpecification()
         {
-                Includes.Add(c => c.AcadmicYear);
-                Includes.Add(c => c.Students);
-                Includes.Add(c => c.Exam);
-                Includes.Add(c => c.Subject);
+            AddInclude(c => c.AcadmicYear);
+
+            AddInclude(c => c.Include(c => c.Students)
+                             .ThenInclude(s => s.User));
+            AddInclude(c => c.Include(c => c.Students)
+                             .ThenInclude(s => s.Parent)
+                                .ThenInclude(p => p.User)
+                             );
+            AddInclude(c => c.Exam);
+            AddInclude(c => c.Subject);
         }
     }
 }
