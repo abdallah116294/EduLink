@@ -16,5 +16,6 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>> DeleteAcademicYear(int id);
         Task<ResponseDTO<object>> GetAcademicYear(int id);
         Task<ResponseDTO<object>> GetAllAcademicYears();
+        Task<ResponseDTO<object>> GetCurrentAcademicYear();
     }
 }

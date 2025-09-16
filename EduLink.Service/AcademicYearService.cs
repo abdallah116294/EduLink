@@ -2,6 +2,8 @@
 using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.Specifications;
+using EduLink.Core.Specifications.Parames;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.AcademicYear;
 using System;
@@ -89,8 +91,12 @@ namespace EduLink.Service
         {
             try
             {
+                var spec = new AcademicYearSpecification(new AcademicYearParames
+                {
+                    Id = id
+                });
                 var academicYearRepo = _unitOfWork.Repository<AcadmicYear>();
-                var academicYear = await academicYearRepo.GetByIdAsync(id);
+                var academicYear = await academicYearRepo.GetByIdAsync(spec);
                 if (academicYear == null)
                 {
                     return new ResponseDTO<object>
@@ -100,12 +106,24 @@ namespace EduLink.Service
                         ErrorCode = ErrorCodes.NotFound,
                     };
                 }
-                var academicYearResponseDto = _mapper.Map<AcademicYearResponseDTO>(academicYear);
+                var academicYearResponseDtos = new AcademicYearResponseDTO
+                {
+                    Id = academicYear.Id,
+                    YearName = academicYear.YearName,
+                    StartDate = academicYear.StartDate,
+                    EndDate = academicYear.EndDate,
+                    Classes = academicYear.Class.Select(cl => new ClassResponseDTO
+                    {
+                        Id = cl.Id,
+                        ClassName = cl.ClassName,
+                        //GradeLevel=cl.GradeLevel
+                    }).ToList()
+                };
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
                     Message = "Academic Year Retrieved Successfully",
-                    Data = academicYearResponseDto
+                    Data = academicYearResponseDtos
                 };
 
             }
@@ -124,8 +142,9 @@ namespace EduLink.Service
         {
             try
             {
+                var spec = new AcademicYearSpecification();
                 var academicYearRepo = _unitOfWork.Repository<AcadmicYear>();
-                var academicYears = await academicYearRepo.GetAllAsync();
+                var academicYears = await academicYearRepo.GetAllAsync(spec);
                 if (academicYears == null || !academicYears.Any())
                 {
                     return new ResponseDTO<object>
@@ -135,7 +154,18 @@ namespace EduLink.Service
                         ErrorCode = ErrorCodes.NotFound,
                     };
                 }
-                var academicYearResponseDtos = _mapper.Map<List<AcademicYearResponseDTO>>(academicYears);
+                var academicYearResponseDtos = academicYears.Select(ac => new AcademicYearResponseDTO
+                {
+                    Id = ac.Id,
+                    YearName = ac.YearName,
+                    StartDate = ac.StartDate,
+                    EndDate = ac.EndDate,
+                    Classes = ac.Class.Select(cl => new ClassResponseDTO {
+                        Id=cl.Id,
+                        ClassName=cl.ClassName,
+                        //GradeLevel=cl.GradeLevel
+                    }).ToList()
+                }).ToList();
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
@@ -146,6 +176,58 @@ namespace EduLink.Service
             catch(Exception ex)
             {
             return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> GetCurrentAcademicYear()
+        {
+            try
+            {
+                var today = DateTime.Now;
+                var spec = new AcademicYearSpecification(new AcademicYearParames 
+                {
+                    today= today
+                });
+             
+                var academicYear = await _unitOfWork.Repository<AcadmicYear>()
+                  .GetByIdAsync(spec);
+                if (academicYear == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Academic Year Not Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                }
+                var academicYearResponseDtos = new AcademicYearResponseDTO
+                {
+                    Id = academicYear.Id,
+                    YearName = academicYear.YearName,
+                    StartDate = academicYear.StartDate,
+                    EndDate = academicYear.EndDate,
+                    Classes = academicYear.Class.Select(cl => new ClassResponseDTO
+                    {
+                        Id = cl.Id,
+                        ClassName = cl.ClassName,
+                        //GradeLevel=cl.GradeLevel
+                    }).ToList()
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Academic Year Retrieved Successfully",
+                    Data = academicYearResponseDtos
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
                 {
                     IsSuccess = false,
                     Message = $"An Error Accured {ex}",

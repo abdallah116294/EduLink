@@ -2,6 +2,7 @@
 using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.Specifications;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.Department;
 using System;
@@ -21,6 +22,134 @@ namespace EduLink.Service
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        public async Task<ResponseDTO<object>> AssignAcademicSteffHeadToDepartment(int staffId)
+        {
+            try
+            {
+                var academicStaffRepo = _unitOfWork.Repository<AcademicStaff>();
+               
+                var AcademicSteff = await academicStaffRepo.GetByIdAsync(staffId);
+             
+                if (AcademicSteff == null )
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Staff Not Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                }
+                var sepc = new DepartmentSpecification(AcademicSteff.DepartmentId);
+                var departmentRepo = _unitOfWork.Repository<Department>();
+                var department = await departmentRepo.GetByIdAsync(sepc);
+                if (department == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Department Not Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                }
+                department.HeadOfDepartmentId = staffId;
+                await departmentRepo.UpdateAsync(department);
+                await _unitOfWork.CompleteAsync();
+                //var departmentResponseDto = _mapper.Map<DepartmentResponseDTO>(department);
+                var departmentResponseDto = new DepartmentResponseDTO
+                {
+                    Id = department.Id,
+                    DepartmentName = department.DepartmentName,
+                    HeadOfDepartmentId = department.HeadOfDepartmentId,
+                    HeadOfDepartmentName = department.AcademicStaff.FirstOrDefault(s => s.Id == department.HeadOfDepartmentId)!.User.FullName,
+                    AcademicStaff = department.AcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role = s.User.Role.ToString()
+                    }).ToList(),
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Head of Department Assigned Successfully",
+                    Data = departmentResponseDto
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> AssignNonAcademicSteffHeadToDepartment(int staffId)
+        {
+            try
+            {
+                var nonAcademicStaffRepo = _unitOfWork.Repository<NonAcademicStaff>();
+
+                var nonAcademicSteff = await nonAcademicStaffRepo.GetByIdAsync(staffId);
+
+                if (nonAcademicSteff == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Staff Not Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                }
+                var spec = new DepartmentSpecification(nonAcademicSteff.DepartmentId);
+                var departmentRepo = _unitOfWork.Repository<Department>();
+                var department = await departmentRepo.GetByIdAsync(spec);
+                if (department == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Department Not Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                }
+                department.HeadOfDepartmentId = staffId;
+                await departmentRepo.UpdateAsync(department);
+                await _unitOfWork.CompleteAsync();
+                //var departmentResponseDto = _mapper.Map<DepartmentResponseDTO>(department);
+                var departmentResponseDto = new DepartmentResponseDTO
+                {
+                    Id = department.Id,
+                    DepartmentName = department.DepartmentName,
+                    HeadOfDepartmentId = department.HeadOfDepartmentId,
+                    HeadOfDepartmentName = department.NonAcademicStaff.FirstOrDefault(s => s.Id == department.HeadOfDepartmentId)!.User.FullName,
+                    NonAcademicStaff = department.NonAcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role = s.User.Role.ToString()
+                    }).ToList(),
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Head of Department Assigned Successfully",
+                    Data = departmentResponseDto
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured {ex}",
+                    ErrorCode = ErrorCodes.Exception,
+                };
+            }
         }
 
         public async Task<ResponseDTO<object>> CreateDepartment(CreateDepartmentDTO dto)
@@ -89,9 +218,31 @@ namespace EduLink.Service
         {
             try
             {
+                var spec=new DepartmentSpecification();
                 var departmentRepo = _unitOfWork.Repository<Department>();
-                var departments = await departmentRepo.GetAllAsync();
-                var departmentResponseDtos = _mapper.Map<List<DepartmentResponseDTO>>(departments);
+                var departments = await departmentRepo.GetAllAsync(spec);
+                var departmentResponseDtos = departments.Select(d => new DepartmentResponseDTO
+                {
+                    Id = d.Id,
+                    DepartmentName = d.DepartmentName,
+                    HeadOfDepartmentId = d.HeadOfDepartmentId,
+                    HeadOfDepartmentName =
+    d.AcademicStaff.FirstOrDefault(s => s.Id == d.HeadOfDepartmentId)?.User?.FullName
+    ?? d.NonAcademicStaff.FirstOrDefault(s => s.Id == d.HeadOfDepartmentId)?.User?.FullName
+    ?? "N/A",
+                    AcademicStaff = d.AcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role=s.User.Role.ToString()
+                    }).ToList(),
+                    NonAcademicStaff= d.NonAcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role = s.User.Role.ToString()
+                    }).ToList(),
+                }).ToList();
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
@@ -115,8 +266,9 @@ namespace EduLink.Service
         {
             try
             {
+                var spc = new DepartmentSpecification(id);
                 var departmentRepo = _unitOfWork.Repository<Department>();
-                var department = await departmentRepo.GetByIdAsync(id);
+                var department = await departmentRepo.GetByIdAsync(spc);
                 if (department == null)
                 {
                     return new ResponseDTO<object>
@@ -126,7 +278,29 @@ namespace EduLink.Service
                         ErrorCode = ErrorCodes.NotFound,
                     };
                 }
-                var departmentResponseDto = _mapper.Map<DepartmentResponseDTO>(department);
+                var departmentResponseDto = new DepartmentResponseDTO 
+                {
+                    Id = department.Id,
+                    DepartmentName = department.DepartmentName,
+                    HeadOfDepartmentId = department.HeadOfDepartmentId,
+
+                                  HeadOfDepartmentName =
+                    department.AcademicStaff.FirstOrDefault(s => s.Id == department.HeadOfDepartmentId)?.User?.FullName
+    ?? department.NonAcademicStaff.FirstOrDefault(s => s.Id == department.HeadOfDepartmentId)?.User?.FullName
+    ?? "N/A",
+                    AcademicStaff = department.AcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role = s.User.Role.ToString()
+                    }).ToList(),
+                    NonAcademicStaff = department.NonAcademicStaff.Select(s => new StaffResponseDto
+                    {
+                        Id = s.Id,
+                        FullName = s.User.FullName,
+                        Role = s.User.Role.ToString()
+                    }).ToList(),
+                };
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
@@ -188,5 +362,6 @@ namespace EduLink.Service
                 };
             }
         }
+    
     }
 }

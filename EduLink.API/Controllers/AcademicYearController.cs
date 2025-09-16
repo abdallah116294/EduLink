@@ -44,6 +44,12 @@ namespace EduLink.API.Controllers
             var res = await _academicYearService.DeleteAcademicYear(id);
             return CreateResponse(res);
         }
+        [HttpGet("get-current-academic-year")]
+        public async Task<IActionResult> GetCurrentAcademicYear() 
+        {
+            var res = await _academicYearService.GetCurrentAcademicYear();
+            return CreateResponse(res);
+        }
 
     }
 }

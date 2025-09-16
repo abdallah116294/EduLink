@@ -15,5 +15,7 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>> DeleteDepartment(int id);
         Task<ResponseDTO<object>> GetDepartment(int id);
         Task<ResponseDTO<object>> GetAllDepartments();
+        Task<ResponseDTO<object>> AssignAcademicSteffHeadToDepartment(int staffId);
+        Task<ResponseDTO<object>> AssignNonAcademicSteffHeadToDepartment(int staffId);
     }
 }

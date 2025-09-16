@@ -45,6 +45,17 @@ namespace EduLink.API.Controllers
             var res = await _departmentService.DeleteDepartment(id);
             return CreateResponse(res);
         }
-
+        [HttpPost("assign-head-academic-steff")]
+        public async Task<IActionResult>AssignHeadDepartmentAcademicSteff(int steffId)
+        {
+            var res = await _departmentService.AssignAcademicSteffHeadToDepartment(steffId);
+            return CreateResponse(res);
+        }
+        [HttpPost("assign-head-non-academic-steff")]
+        public async Task<IActionResult> AssignHeadDepartmentNonAcademicSteff(int steffId)
+        {
+            var res = await _departmentService.AssignNonAcademicSteffHeadToDepartment(steffId);
+            return CreateResponse(res);
+        }
     }
 }
