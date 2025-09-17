@@ -204,7 +204,10 @@ namespace EduLink.Service
         {
             try
             {
-                var feeSpec = new FeesSpecifications(studentId);
+                var feeSpec = new FeesSpecifications(new FeeParames 
+                {
+                    StudentId= studentId
+                });
                 var fees = await _unitOfWork.Repository<Fee>().GetAllAsync(feeSpec);
                 if(fees == null || !fees.Any())
                 {
