@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admins")]
     [ApiController]
     public class AdminController : BaseController
     {

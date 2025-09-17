@@ -15,5 +15,7 @@ namespace EduLink.Core.IServices
         Task<ResponseDTO<object>> GetNonAcademicSteffById(int id);
         Task<ResponseDTO<object>> GetNonAcademicSteffByUserId(string userId);
         Task<ResponseDTO<object>> GetNonAcademicStaffByDepartment(int departmentId);
+        Task<ResponseDTO<object>>DeleteNonAcademicStaff(int id);
+        Task<ResponseDTO<object>> UpdateNonAcademicStaff(int id, CreateNonAcademicSteffDTO dto);
     }
 }

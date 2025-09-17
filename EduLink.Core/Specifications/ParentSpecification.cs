@@ -1,4 +1,5 @@
 ﻿using EduLink.Core.Entities;
+using EduLink.Core.Specifications.Parames;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace EduLink.Core.Specifications
                                .ThenInclude(s => s.Class));  // Nested include
 
         }
-        public ParentSpecification(string userId):base(p=>p.UserId== userId)
+        public ParentSpecification(ParentParames par):base(p=>(string.IsNullOrEmpty(par.UserId)||p.UserId==par.UserId)&&(!par.Id.HasValue||p.Id==par.Id))
         {
             AddInclude(p => p.User);
             AddInclude(p => p.Students);

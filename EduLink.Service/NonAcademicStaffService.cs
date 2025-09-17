@@ -53,6 +53,45 @@ namespace EduLink.Service
             }
         }
 
+        public async Task<ResponseDTO<object>> DeleteNonAcademicStaff(int id)
+        {
+            try
+            {
+                var spec = new NonAcademicStaffSpecification(new NonAcademicSteffParames 
+                {
+                    Id=id
+                });
+                var nonAcademicSteff = await _unitOfWork.Repository<NonAcademicStaff>().GetByIdAsync(spec);
+                if(nonAcademicSteff == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Non Academic Staff not found",
+                        Data = null,
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+                await _unitOfWork.Repository<NonAcademicStaff>().DeleteAsync(id);
+                await _unitOfWork.CompleteAsync();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Delete Non Academic Staff",
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    Data = null,
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
         public async Task<ResponseDTO<object>> GetAllNonAcademicStaff()
         {
             try
@@ -224,6 +263,59 @@ namespace EduLink.Service
                     Message = "Get NonAcademic Stafff By Id",
                     Data = response,
 
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    Data = null,
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> UpdateNonAcademicStaff(int id, CreateNonAcademicSteffDTO dto)
+        {
+            try
+            {
+                var spec = new NonAcademicStaffSpecification(new NonAcademicSteffParames
+                {
+                    Id = id
+                });
+                var nonAcademicSteff = await _unitOfWork.Repository<NonAcademicStaff>().GetByIdAsync(spec);
+                if (nonAcademicSteff == null)
+                {
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Non Academic Staff not found",
+                        Data = null,
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+                nonAcademicSteff.DepartmentId = dto.DepartmentId;
+                nonAcademicSteff.JobTitle = dto.JobTitle;
+                nonAcademicSteff.UserId = dto.UserId;
+               await _unitOfWork.Repository<NonAcademicStaff>().UpdateAsync(id, entity =>
+               {
+                    entity.DepartmentId=dto.DepartmentId;
+                   entity.JobTitle=dto.JobTitle;
+               });
+                await _unitOfWork.CompleteAsync();
+                var updatedSpec = new NonAcademicStaffSpecification(new NonAcademicSteffParames
+                {
+                    Id = id
+                });
+                nonAcademicSteff = await _unitOfWork.Repository<NonAcademicStaff>().GetByIdAsync(updatedSpec);
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Non Academic Staff Updated Successfully",
+                    Data = nonAcademicSteff,
                 };
 
             }

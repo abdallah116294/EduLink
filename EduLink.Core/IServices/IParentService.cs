@@ -11,10 +11,11 @@ namespace EduLink.Core.IServices
     public  interface IParentService
     {
         Task<ResponseDTO<object>> CreateParent(CreateParentDTO dto);
-        Task<ResponseDTO<object>> UpdateParent(UpdateParentDTO dto);
         Task<ResponseDTO<object>> DeleteParent(int id);
         Task<ResponseDTO<object>> GetParent(string usrId);
         Task<ResponseDTO<object>> GetAllParent();
         Task<ResponseDTO<object>> GetStudentByParentId(string userId);
+        Task<ResponseDTO<object>> GetParentById(int id);
+        Task<ResponseDTO<object>>UpdateParent(string userID,CreateParentDTO dto);
     }
 }

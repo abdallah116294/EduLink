@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/academic-years")]
     [ApiController]
     public class AcademicYearController : BaseController
     {

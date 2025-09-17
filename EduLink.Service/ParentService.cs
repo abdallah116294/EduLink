@@ -2,6 +2,7 @@
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
 using EduLink.Core.Specifications;
+using EduLink.Core.Specifications.Parames;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.Parent;
 using EduLink.Utilities.DTO.Student;
@@ -184,7 +185,10 @@ namespace EduLink.Service
         {
             try
             {
-                var parentSpec = new ParentSpecification(usrId);
+                var parentSpec = new ParentSpecification(new ParentParames
+                {
+                    UserId=usrId
+                });
                 var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(parentSpec);
                 if (parent == null)
                     return new ResponseDTO<object>
@@ -235,11 +239,74 @@ namespace EduLink.Service
             }
         }
 
+        public async Task<ResponseDTO<object>> GetParentById(int id)
+        {
+            try
+            {
+                var spec = new ParentSpecification(new ParentParames
+                {
+                    Id= id
+                });
+                var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(spec);
+                if (parent == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No Parent Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                var parentDTO = new ParentResponseDTO
+                {
+                    Id = parent.Id,
+                    Occupation = parent.Occupation,
+                    Address = parent.Address,
+                    UserId = parent.UserId,
+                    FullName = parent.User.FullName,
+                    Email = parent.User.Email,
+                    PhoneNumber = parent.User.PhoneNumber,
+                    Students = parent.Students.Select(p => new StudentResponseDTO
+                    {
+                        UserId = p.UserId,
+                        AdmissionNumber = p.AdmissionNumber,
+                        ClassId = p.ClassId,
+                        ClassName = p.Class.ClassName,
+                        Email = p.User.Email,
+                        DateOfBirth = p.DateOfBirth,
+                        EnrollmentDate = p.EnrollmentDate,
+                        FullName = p.User.FullName,
+                        Id = p.Id,
+                        ParentId = p.ParentId,
+                        ParentName = parent.User.FullName
+                    }).ToList()
+                };
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Get Parent By Id",
+                    Data = parentDTO,
+
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    Data = null,
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
         public async Task<ResponseDTO<object>> GetStudentByParentId(string userId)
         {
             try
             {
-                var parentSpec = new ParentSpecification(userId);
+                var parentSpec = new ParentSpecification(new ParentParames
+                {
+                    UserId=userId
+                });
                 var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(parentSpec);
                 if (parent == null)
                     return new ResponseDTO<object>
@@ -278,10 +345,43 @@ namespace EduLink.Service
                 };
             }
         }
-
-        public Task<ResponseDTO<object>> UpdateParent(UpdateParentDTO dto)
+        public async Task<ResponseDTO<object>> UpdateParent(string userID, CreateParentDTO dto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var spec = new ParentSpecification(new ParentParames
+                {
+                    UserId=userID
+                });
+                var parent = await _unitOfWork.Repository<Parent>().GetByIdAsync(spec);
+                if (parent == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "No Parent Found",
+                        ErrorCode = ErrorCodes.NotFound,
+                    };
+                await _unitOfWork.Repository<Parent>().UpdateAsync(parent.Id, entity => 
+                {
+                    entity.Occupation = dto.Occupation;
+                    entity.Address = dto.Address;
+                });
+                await _unitOfWork.CompleteAsync();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Update Parent",
+                };
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accured{ex.Message}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
         }
     }
 }

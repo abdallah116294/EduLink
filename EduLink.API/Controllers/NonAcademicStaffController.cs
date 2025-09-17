@@ -48,5 +48,18 @@ namespace EduLink.API.Controllers
             var res = await _nonAcademicStaffService.GetNonAcademicStaffByDepartment(departmentId);
             return CreateResponse(res);
         }
+        [HttpDelete("delete-non-academic-steff{id}")]
+        public async Task<IActionResult> DeleteNonAcademicSteff(int id)
+        {
+            var res = await _nonAcademicStaffService.DeleteNonAcademicStaff(id);
+            return CreateResponse(res);
+        }
+        [HttpPut("update-non-academic-steff{id}")]
+        public async Task<IActionResult> UpdateNonAcademicSteff(int id, [FromForm] CreateNonAcademicSteffDTO dto)
+        {
+            var res = await _nonAcademicStaffService.UpdateNonAcademicStaff(id, dto);
+            return CreateResponse(res);
+        }
+
     }
 }

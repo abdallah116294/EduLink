@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/students")]
     [ApiController]
     public class StudentController : BaseController
     {

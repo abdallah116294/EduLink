@@ -37,6 +37,7 @@ namespace EduLink.API.Extensions
             services.AddScoped<ISubjectsService, SubjectsService>();
             services.AddScoped<IGradeService, GradeService>();
             services.AddScoped<IFeeService, FeeService>();
+            services.AddScoped<IExamService, ExamService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();

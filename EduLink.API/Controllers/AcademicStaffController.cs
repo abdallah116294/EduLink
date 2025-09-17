@@ -16,36 +16,48 @@ namespace EduLink.API.Controllers
         {
             _academicStaffService = academicStaffService;
         }
-        [HttpPost("AddAcademicStaff")]
+        [HttpPost("academicstaff")]
         public async Task<IActionResult> CreateAcademicStaff([FromForm] CreateAcademicStaffDTO dto) 
         {
             var res = await _academicStaffService.CreateAcademicStaff(dto);
             return CreateResponse(res);
         }
-        [HttpGet("Get-All-AcademicSteff")]
+        [HttpGet("get-all-academicstaff")]
         public async Task<IActionResult> GetAllAcademicStaff() 
         {
             var res=await _academicStaffService.GetAllAcademicStaff();
             return CreateResponse(res);
         }
-        [HttpGet("Get-AcademicStaff{id}")]
+        [HttpGet("get-academicstaff-by{id}")]
         public async Task<IActionResult>GetAcademicStaffById(int id)
         {
             var res = await _academicStaffService.GetAcademicStaffById(id);
             return CreateResponse(res);
         }
         [Authorize(Roles = "ACADEMIC")]
-        [HttpGet("GetAcademicSteffb")]
+        [HttpGet("get-academicstaff")]
         public async Task<IActionResult> GetAcademicStaffByUserId() 
         {
             var userId = GetUserId();
             var res = await _academicStaffService.GetAcademicStaffByUserId(userId);
             return CreateResponse(res);
         }
-        [HttpGet("Department{departmentId}")]
+        [HttpGet("department{departmentId}")]
         public async Task<IActionResult>GetAcademicStaffByDepartment(int departmentId) 
         {
             var res = await _academicStaffService.GetAcademicStaffByDepartment(departmentId);
+            return CreateResponse(res);
+        }
+        [HttpDelete("delete-academicstaff{id}")]    
+        public async Task<IActionResult> DeleteAcademicStaff(int id) 
+        {
+            var res = await _academicStaffService.DeleteAcademicStaff(id);
+            return CreateResponse(res);
+        }
+        [HttpPut("update-academicstaff{id}")]
+        public async Task<IActionResult> UpdateAcademicStaff(int id, [FromForm] CreateAcademicStaffDTO dto) 
+        {
+            var res = await _academicStaffService.UpdateAcademicStaff(id, dto);
             return CreateResponse(res);
         }
     }

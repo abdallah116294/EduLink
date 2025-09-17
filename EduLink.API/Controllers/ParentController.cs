@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/parents")]
     [ApiController]
     public class ParentController : BaseController
     {
@@ -31,7 +31,7 @@ namespace EduLink.API.Controllers
             return CreateResponse(res);
         }
         [Authorize(Roles ="PARENT")]
-        [HttpGet("GetParent")]
+        [HttpGet("get-parent")]
         public async Task<IActionResult> GetParent()
         {
             var userId = GetUserId();
@@ -50,6 +50,13 @@ namespace EduLink.API.Controllers
         public async Task<IActionResult> DeleteParent(int id)
         {
             var res = await _parentService.DeleteParent(id);
+            return CreateResponse(res);
+        }
+        [HttpPut("update-parent")]
+        public async Task<IActionResult>UpdateParent( CreateParentDTO dto)
+        {
+            var userId=GetUserId();
+            var res = await _parentService.UpdateParent(userId, dto);
             return CreateResponse(res);
         }
     }

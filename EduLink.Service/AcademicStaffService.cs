@@ -55,6 +55,44 @@ namespace EduLink.Service
             }
         }
 
+        public async Task<ResponseDTO<object>> DeleteAcademicStaff(int id)
+        {
+            try
+            {
+                var spec= new AcademicStaffSpecification(new AcademicStaffParames
+                {
+                    AcademicStaffId = id
+                }); 
+                var academicStaff = await _unitOfWork.Repository<AcademicStaff>().GetByIdAsync(spec);
+                if(academicStaff==null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "AcademicSteff Not Found",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                await _unitOfWork.Repository<AcademicStaff>().DeleteAsync(id);
+                await _unitOfWork.CompleteAsync();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Delete AcademicSteff Succesfull",
+
+
+                };
+
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accoured ,{ex}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
         public async Task<ResponseDTO<object>> GetAcademicStaffByDepartment(int departmentId)
         {
             try
@@ -244,6 +282,47 @@ namespace EduLink.Service
                 };
             }
             catch(Exception  ex)
+            {
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = false,
+                    Message = $"An Error Accoured ,{ex}",
+                    ErrorCode = ErrorCodes.Exception
+                };
+            }
+        }
+
+        public async Task<ResponseDTO<object>> UpdateAcademicStaff(int id, CreateAcademicStaffDTO dto)
+        {
+            try
+            {
+                var spec= new AcademicStaffSpecification(new AcademicStaffParames
+                {
+                    AcademicStaffId = id
+                });
+                var academicStaff = await _unitOfWork.Repository<AcademicStaff>().GetByIdAsync(spec);
+                if (academicStaff == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "AcademicSteff Not Found",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                await _unitOfWork.Repository<AcademicStaff>().UpdateAsync(id, entity => 
+                {
+                    entity.DepartmentId = dto.DepartmentId;
+                    entity.Specialization = dto.Specialization;
+                    entity.UserId = dto.UserId;             
+                });
+                await _unitOfWork.CompleteAsync();
+                return new ResponseDTO<object>
+                {
+                    IsSuccess = true,
+                    Message = "Update AcademicSteff Succesfull",
+                };
+
+            }
+            catch(Exception ex)
             {
                 return new ResponseDTO<object>
                 {

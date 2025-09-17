@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/acount")]
     [ApiController]
     public class AccountController : BaseController
     {
@@ -18,40 +18,40 @@ namespace EduLink.API.Controllers
         {
             _userService = userService;
         }
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult>Login(LoginDTO dto)
         {
             var result=await _userService.LoginAsync(dto);
             return CreateResponse(result);
         }
-        [HttpPost("Add-Admin")]
+        [HttpPost("add-admin")]
         public async Task<IActionResult> AddAdmin([FromForm]RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "Admin");
             return CreateResponse(result);
         }
         ///[Authorize(Roles = "ADMIN")]
-        [HttpPost("register-AcademicStaff")]
+        [HttpPost("register-academicStaff")]
         public async Task<IActionResult> RegisterAcademicStaff([FromForm] RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "Academic");
             return CreateResponse(result);
         }
         [Authorize(Roles = "ADMIN")]
-        [HttpPost("Register-Student")]
+        [HttpPost("register-Student")]
         public async Task<IActionResult> RegistetrStudent([FromBody] RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "Student");
             return CreateResponse(result);
         }
-        [HttpPost("Register-Parent")]
+        [HttpPost("register-parent")]
         public async Task<IActionResult> RegistetrParent([FromBody] RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "Parent");
             return CreateResponse(result);
         }
        // [Authorize(Roles = "ADMIN")]
-        [HttpPost("Register-NonAcadmicStaff")]
+        [HttpPost("register-nonAcadmicstaff")]
         public async Task<IActionResult> RegistetrNonAcadmicStaff([FromForm] RegisterDTO dto)
         {
             var result = await _userService.RegisterAsync(dto, "NonAcademic");

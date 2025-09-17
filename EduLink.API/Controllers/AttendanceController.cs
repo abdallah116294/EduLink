@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduLink.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/attendance")]
     [ApiController]
     public class AttendanceController : BaseController
     {
@@ -15,37 +15,37 @@ namespace EduLink.API.Controllers
         {
             _attendanceService = attendanceService;
         }
-        [HttpPost("Mark-Attendance")]
+        [HttpPost("mark-attendance")]
         public async Task<IActionResult> MarkAttendance([FromForm] AddAttendanceDTO dto)
         {
             var result = await _attendanceService.MarkAttendanceAsync(dto);
             return CreateResponse(result);
         }
-        [HttpGet("Attendance-By-ClassID")]
+        [HttpGet("attendance-by-classId")]
         public async Task<IActionResult> GetClassAttendance([FromQuery]StudentSpecParms parms)
         {
             var result = await _attendanceService.GetStudentsAttanceByClass(parms);
             return CreateResponse(result);
         }
-        [HttpGet("Attendance-By-ID{id}")]
+        [HttpGet("attendance-by{id}")]
         public async Task<IActionResult> GetAttendanceById(int id)
         {
             var result = await _attendanceService.GetAttendanceById(id);
             return CreateResponse(result);
         }
-        [HttpPut("Update-Attendance{id}")]
+        [HttpPut("update-attendance{id}")]
         public async Task<IActionResult> UpdateAttendance(int id, [FromForm] AddAttendanceDTO dto)
         {
             var result = await _attendanceService.UpdateAttendance(id, dto);
             return CreateResponse(result);
         }
-        [HttpDelete("Delete-Attendance{id}")]
+        [HttpDelete("delete-attendance{id}")]
         public async Task<IActionResult> DeleteAttendance(int id)
         {
             var result = await _attendanceService.DeleteAttendance(id);
             return CreateResponse(result);
         }
-        [HttpGet("Get-All-Attendance")]
+        [HttpGet("get-all-attendance")]
         public async Task<IActionResult> GetAllAttendance()
         {
             var result = await _attendanceService.GetAllAttendance();
