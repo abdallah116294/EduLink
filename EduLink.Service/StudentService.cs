@@ -3,6 +3,7 @@ using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
 using EduLink.Core.Specifications;
+using EduLink.Core.Specifications.Parames;
 using EduLink.Repository.Data;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.Classes;
@@ -106,7 +107,10 @@ namespace EduLink.Service
         {
             try
             {
-                var attendanceSpec = new AttendanceSpecification(studentId);
+                var attendanceSpec = new AttendanceSpecification(new AttendanceParames 
+                {
+                     StudentId=studentId
+                });
                 var attendances = await _unitOfWork.Repository<Attendance>().GetAllAsync(attendanceSpec);
                 if(attendances == null || !attendances.Any())
                 {
@@ -244,7 +248,10 @@ namespace EduLink.Service
         {
             try
             {
-                var gradeSpec = new GradeSpecification(studentId);
+                var gradeSpec = new GradeSpecification(new GradeParames 
+                {
+                    StudentId=studentId
+                });
                 var grades = await _unitOfWork.Repository<Grade>().GetAllAsync(gradeSpec);
                 if(grades == null || !grades.Any())
                 {

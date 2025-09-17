@@ -35,6 +35,7 @@ namespace EduLink.API.Extensions
             services.AddScoped<IAcademicStaffService, AcademicStaffService>();
             services.AddScoped<INonAcademicStaffService, NonAcademicStaffService>();
             services.AddScoped<ISubjectsService, SubjectsService>();
+            services.AddScoped<IGradeService, GradeService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();

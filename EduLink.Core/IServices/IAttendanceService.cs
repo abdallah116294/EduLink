@@ -13,5 +13,9 @@ namespace EduLink.Core.IServices
     {
         Task<ResponseDTO<object>> MarkAttendanceAsync(AddAttendanceDTO dto );
         Task<ResponseDTO<object>> GetStudentsAttanceByClass(StudentSpecParms studentSpecParms);
+        Task<ResponseDTO<object>> GetAttendanceById(int id);
+        Task<ResponseDTO<object>> UpdateAttendance(int id, AddAttendanceDTO dto);
+        Task<ResponseDTO<object>> DeleteAttendance(int id);
+        Task<ResponseDTO<object>> GetAllAttendance();
     }
 }

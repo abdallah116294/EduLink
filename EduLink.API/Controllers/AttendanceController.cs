@@ -27,5 +27,30 @@ namespace EduLink.API.Controllers
             var result = await _attendanceService.GetStudentsAttanceByClass(parms);
             return CreateResponse(result);
         }
+        [HttpGet("Attendance-By-ID{id}")]
+        public async Task<IActionResult> GetAttendanceById(int id)
+        {
+            var result = await _attendanceService.GetAttendanceById(id);
+            return CreateResponse(result);
+        }
+        [HttpPut("Update-Attendance{id}")]
+        public async Task<IActionResult> UpdateAttendance(int id, [FromForm] AddAttendanceDTO dto)
+        {
+            var result = await _attendanceService.UpdateAttendance(id, dto);
+            return CreateResponse(result);
+        }
+        [HttpDelete("Delete-Attendance{id}")]
+        public async Task<IActionResult> DeleteAttendance(int id)
+        {
+            var result = await _attendanceService.DeleteAttendance(id);
+            return CreateResponse(result);
+        }
+        [HttpGet("Get-All-Attendance")]
+        public async Task<IActionResult> GetAllAttendance()
+        {
+            var result = await _attendanceService.GetAllAttendance();
+            return CreateResponse(result);
+        }
+
     }
 }
