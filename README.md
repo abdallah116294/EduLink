@@ -175,8 +175,8 @@ EduLink/
    ```
 
 5. **Access the application**
-   - API: `https://localhost:7001`
-   - Swagger UI: `https://localhost:7001/swagger`
+   - API: `http://edulink.runasp.net/swagger/index.html`
+   - Swagger UI: `[https://localhost:7001/swagge](http://edulink.runasp.net/swagger/index.html)r`
 
 ### Docker Support
 
@@ -189,8 +189,8 @@ docker run -p 8080:80 edulink-api
 ## 📖 API Documentation
 
 The API is documented using Swagger/OpenAPI. Once the application is running, visit:
-- **Swagger UI:** `[https://localhost:7001/swagge](http://edulink.runasp.net/swagger)r`
-- **OpenAPI JSON:** `[https://localhost:7001/swagger/v1/swagger.json](http://edulink.runasp.net/swagger/v1/swagger.json)`
+- **Swagger UI:** `(http://edulink.runasp.net/swagger/index.html)`
+- **OpenAPI JSON:** `(http://edulink.runasp.net/swagger/v1/swagger.json)`
 
 ### Key Endpoints
 
@@ -282,7 +282,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **[Your Name]**
-- GitHub: [@yourusername]([https://github.com/yourusername](https://github.com/abdallah116294))
+- GitHub: [@yourusername]((https://github.com/abdallah116294))
 - LinkedIn: [Your LinkedIn](www.linkedin.com/in/abdallha-mohamed-b66926209)
 - Email: abdallhamohamed116@gmail.com
 
