@@ -76,14 +76,6 @@ namespace EduLink.API
             });
             #endregion
             var app = builder.Build();
-            // Configure the HTTP request pipeline.
-            #region Roles Seeder 
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeederService>();
-                await roleSeeder.SeedRolesAsync();
-            }
-            #endregion
              var wwwRootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
  if (!Directory.Exists(wwwRootPath))
  {
@@ -139,6 +131,15 @@ namespace EduLink.API
          });
      }
  });
+            // Configure the HTTP request pipeline.
+            #region Roles Seeder 
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeederService>();
+                await roleSeeder.SeedRolesAsync();
+            }
+            #endregion
+            
             //if (app.Environment.IsDevelopment())
             //{
             //    app.UseSwagger();
