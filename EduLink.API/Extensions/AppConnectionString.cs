@@ -10,7 +10,7 @@ namespace EduLink.API.Extensions
         {
             service.AddDbContext<EduLinkDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("EduLinkConnectionStringDev"));
+                options.UseSqlServer(configuration.GetConnectionString("EduLinkConnectionStringProduction"));
             });
             service.AddIdentityCore<User>(u =>
             {
