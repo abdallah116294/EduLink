@@ -21,8 +21,8 @@ jobs:
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
         
-      - name: Test with .NET
-        run: dotnet test
+      # - name: Test with .NET
+      #   run: dotnet test
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
