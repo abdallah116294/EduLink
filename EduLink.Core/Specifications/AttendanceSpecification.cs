@@ -14,6 +14,7 @@ namespace EduLink.Core.Specifications
         public AttendanceSpecification(AttendanceParames attendance):base(a=>(!attendance.Id.HasValue||a.Id==attendance.Id)&&(!attendance.StudentId.HasValue||a.StudentId==attendance.StudentId))
         {
             AddInclude(a=>a.Include(a=>a.Student).ThenInclude(s=>s.User));
+            AddInclude(a => a.Include(a => a.Student).ThenInclude(s => s.Parent).ThenInclude(p=>p.User));
             //Includes.Add(a => a.Student);
             //Includes.Add(a => a.Student.User);
         }

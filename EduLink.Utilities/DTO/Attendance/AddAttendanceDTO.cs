@@ -9,7 +9,7 @@ namespace EduLink.Utilities.DTO.Attendance
     public class AddAttendanceDTO
     {
         public int StudentId { get; set; } 
-        public DateTime? Date { get; set; } 
+        public DateTime Date { get; set; } 
         public bool IsPresent { get; set; }
     }
 }

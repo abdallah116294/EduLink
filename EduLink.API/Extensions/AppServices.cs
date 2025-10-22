@@ -1,8 +1,11 @@
-﻿using EduLink.Core.IRepositories;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.IServices.NotificationService;
 using EduLink.Core.IServices.UserService;
 using EduLink.Repository.Repositories;
 using EduLink.Service;
+using EduLink.Service.NotificationService;
 using EduLink.Service.UserService;
 using EduLink.Utilities.DTO.User;
 using EduLink.Utilities.Helpers;
@@ -38,9 +41,16 @@ namespace EduLink.API.Extensions
             services.AddScoped<IGradeService, GradeService>();
             services.AddScoped<IFeeService, FeeService>();
             services.AddScoped<IExamService, ExamService>();
+            services.AddScoped<INotificationService, NotificationService>();
             //Heleper
             services.AddTransient<TokenHelper>();
             services.AddScoped<RoleSeederService>();
+            //SignalR Service
+            services.AddSignalR();
+            //Google Auth Config 
+            //services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            //services.Configure<GoogleAuthConfig>(configuration.GetSection("Google"));
+            // services.Configure<GoogleAuthConfig>(configuration.GetSection("Google"));
         }
     }
 }

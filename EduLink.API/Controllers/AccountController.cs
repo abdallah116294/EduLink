@@ -1,6 +1,7 @@
 ﻿using EduLink.Core.IServices.UserService;
 using EduLink.Utilities.DTO;
 using EduLink.Utilities.DTO.User;
+using EduLink.Utilities.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,13 @@ namespace EduLink.API.Controllers
     public class AccountController : BaseController
     {
         private readonly IUserService _userService;
-
-        public AccountController(IUserService userService)
+        private readonly IGoogleAuthService _authService;
+        private readonly TokenHelper _tokenHelper;
+        public AccountController(IUserService userService, IGoogleAuthService authService, TokenHelper tokenHelper)
         {
             _userService = userService;
+            _authService = authService;
+            _tokenHelper = tokenHelper;
         }
         [HttpPost("login")]
         public async Task<IActionResult>Login(LoginDTO dto)
@@ -83,6 +87,34 @@ namespace EduLink.API.Controllers
             {
                 IsSuccess=true,
                 Message= "Logout Successful"
+            });
+        }
+        [HttpPost]
+        public async Task<IActionResult>GoogleSignIn(GoogleSignInVM model)
+        {
+            var result = await _authService.GoogleSignIn(model);
+            if (!result.IsSuccess || result.Data == null) 
+            {
+                return CreateResponse(result);
+            }
+
+            var tokenData = new TokenDTO
+            {
+                Email = result.Data.Email,
+                Id = result.Data.Id,
+                Role ="STUDENT"
+            };
+            var generateToken = _tokenHelper.GenerateToken(tokenData);
+            return CreateResponse(new ResponseDTO<object> 
+            {
+                IsSuccess=true,
+                Message="Sigin With Google Succesful",
+                Data = new
+                {
+                    result,
+                    generateToken
+                }
+               
             });
         }
     }

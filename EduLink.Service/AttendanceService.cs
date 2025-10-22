@@ -1,6 +1,7 @@
 ﻿using EduLink.Core.Entities;
 using EduLink.Core.IRepositories;
 using EduLink.Core.IServices;
+using EduLink.Core.IServices.NotificationService;
 using EduLink.Core.Specifications;
 using EduLink.Core.Specifications.Parames;
 using EduLink.Utilities.DTO;
@@ -17,9 +18,11 @@ namespace EduLink.Service
     public class AttendanceService : IAttendanceService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public AttendanceService(IUnitOfWork unitOfWork)
+        private readonly INotificationService _notificationService;
+        public AttendanceService(IUnitOfWork unitOfWork, INotificationService notificationService)
         {
-           _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
         }
 
         public async Task<ResponseDTO<object>> DeleteAttendance(int id)
@@ -191,7 +194,7 @@ namespace EduLink.Service
                 {
                     IsSuccess = true,
                     Message = "Students Attendance fetched successfully",
-                    Data = result
+                    Data = result.ToList()
                 };
 
 
@@ -216,15 +219,52 @@ namespace EduLink.Service
                 {
                     StudentId=dto.StudentId,
                 });
+                //Using StudentSpec
+                var studentSpec = new StudentWithSpecification(new StudentSpecParms {
+                    StudentId=dto.StudentId,
+                });
+                //Get Student 
+                var student = await _unitOfWork.Repository<Student>().GetByIdAsync(studentSpec);
                 var attendanceRepo = _unitOfWork.Repository<Attendance>();
+                if (student == null)
+                    return new ResponseDTO<object>
+                    {
+                        IsSuccess = false,
+                        Message = "Student not found"
+                    };
+                var existingAttendance = (await _unitOfWork.Repository<Attendance>()
+                    .GetAllAsync(attendancSpec))
+                    .FirstOrDefault();
+                Attendance attendance2;
+                bool isUpdate = false;
+                if (existingAttendance != null)
+                {
+                    existingAttendance.Status = dto.IsPresent ? "Present" : "Absent";
+                    existingAttendance.Date = dto.Date;
+                   await _unitOfWork.Repository<Attendance>().UpdateAsync(existingAttendance);
+                    attendance2 = existingAttendance;
+                    isUpdate = true;
+                }
+                else
+                {
+                    attendance2 = new Attendance
+                    {
+                        StudentId = dto.StudentId,
+                        Date = dto.Date,
+                        Status = dto.IsPresent ? "Present" : "Absent"
+                    };
+                    await _unitOfWork.Repository<Attendance>().AddAsync(attendance2);
+                }
                 var attendance = new Attendance
                 {
                     StudentId = dto.StudentId,
                     Date = DateTime.Now,
                     Status = dto.IsPresent==true ? "Present" : "Absent",
                 };
-                await attendanceRepo.AddAsync(attendance);
+                //await attendanceRepo.AddAsync(attendance);
                 await _unitOfWork.CompleteAsync();
+                //Send Notification
+                await SendAttendanceNotification(student,attendance2,dto.IsPresent);
                 var attendanceResponse = await attendanceRepo.GetByIdAsync(attendancSpec);
                 var result = new AttendanceResponsForSpecifcStudent
                 {
@@ -235,11 +275,22 @@ namespace EduLink.Service
                     Status=attendanceResponse.Status,
                     
                 };
+                var response = new AttendanceResponseDTO
+                {
+                    Id = attendance.Id,
+                    StudentId = student.Id,
+                    StudentName = student.User?.FullName ?? "Unknown",
+                    AdmissionNumber = student.AdmissionNumber,
+                    Date = attendance.Date,
+                    Status = attendance.Status,
+                    IsPresent = dto.IsPresent,
+                    NotificationSent = true
+                };
                 return new ResponseDTO<object>
                 {
                     IsSuccess = true,
                     Message = "Attendance marked successfully",
-                    Data = result
+                    Data = response
                 };
             }
             catch(Exception ex)
@@ -252,7 +303,48 @@ namespace EduLink.Service
                 };
             }
         }
-
+        private async Task SendAttendanceNotification(Student student, Attendance attendance, bool isPresent)
+        {
+            var studentName = student.User?.FullName ?? "Student";
+            var statusText = isPresent ? "Present" : "Absent";
+            var dateText = attendance.Date.ToString("MMMM dd, yyyy");
+            var studentNotification = new AttendanceNotificationDto
+            {
+                AttendanceId = attendance.Id,
+                StudentName = studentName,
+                AdmissionNumber = student.AdmissionNumber,
+                Date = attendance.Date,
+                IsPresent = isPresent,
+                Status = attendance.Status,
+                Message = $"Your attendance has been marked as {statusText} for {dateText}.",
+                NotificationTime = DateTime.UtcNow,
+                RecipientType = "Student"
+            };
+            var parentNotification = new AttendanceNotificationDto
+            {
+                AttendanceId = attendance.Id,
+                StudentName = studentName,
+                AdmissionNumber = student.AdmissionNumber,
+                Date = attendance.Date,
+                IsPresent = isPresent,
+                Status = attendance.Status,
+                Message = $"{studentName} (Admission No: {student.AdmissionNumber}) was marked {statusText} for {dateText}.",
+                NotificationTime = DateTime.UtcNow,
+                RecipientType = "Parent"
+            };
+            if (!string.IsNullOrEmpty(student.UserId))
+            {
+                await _notificationService.SendAttendanceNotificationAsync(
+                    student.UserId,
+                    studentNotification);
+            }
+            if (student.Parent != null && !string.IsNullOrEmpty(student.Parent.UserId))
+            {
+                await _notificationService.SendAttendanceNotificationAsync(
+                    student.Parent.UserId,
+                    parentNotification);
+            }
+        }
         public async Task<ResponseDTO<object>> UpdateAttendance(int id, AddAttendanceDTO dto)
         {
             try 

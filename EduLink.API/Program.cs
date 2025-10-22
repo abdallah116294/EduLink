@@ -1,5 +1,8 @@
 using EduLink.API.Extensions;
+using EduLink.Core.IServices.UserService;
+using EduLink.Service.NotificationService.Hubs;
 using EduLink.Service.UserService;
+using EduLink.Utilities.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +17,16 @@ namespace EduLink.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()    // allow all domains
+                        .AllowAnyMethod()    // allow all HTTP methods (GET, POST, etc.)
+                        .AllowAnyHeader();   // allow all headers
+                });
+            });
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -22,6 +34,9 @@ namespace EduLink.API
             var configure = builder.Configuration;
             builder.Services.AddAppServices(configure);
             builder.Services.AddConnectionString(configure);
+            //Google Auth Config
+            builder.Services.Configure<GoogleAuthConfig>(configure.GetSection("Google"));
+            builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             #region Authentication  
             var JWTSection = configure.GetSection("JWT");
             var secretKey = JWTSection["Key"];
@@ -47,6 +62,18 @@ namespace EduLink.API
                 };
             });
             #endregion
+            #region AddCors for SingnalR 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("SignalRCorsPolicy", builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000", "http://localhost:4200") // Add your frontend URLs
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
+                });
+            });
+            #endregion
             var app = builder.Build();
             // Configure the HTTP request pipeline.
             #region Roles Seeder 
@@ -56,19 +83,26 @@ namespace EduLink.API
                 await roleSeeder.SeedRolesAsync();
             }
             #endregion
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
 
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
             app.UseHttpsRedirection();
+            app.UseCors("AllowAll");
+            app.UseCors("SignalRCorsPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
 
 
             app.MapControllers();
-
+            #region SignalR
+            app.MapHub<NotificationHub>("/service/notificationService/hubs/notificationHub");
+            #endregion
             app.Run();
         }
     }
