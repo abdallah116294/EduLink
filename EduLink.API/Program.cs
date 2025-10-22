@@ -83,7 +83,61 @@ namespace EduLink.API
                 await roleSeeder.SeedRolesAsync();
             }
             #endregion
+             var wwwRootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+ if (!Directory.Exists(wwwRootPath))
+ {
+     Directory.CreateDirectory(wwwRootPath);
+ }
+ //Custom middleware to handle exception and log them 
+ app.Use(async (context, next) =>
+ {
+     try
+     {
+         await next.Invoke();
+     }
+     catch (Exception ex)
+     {
+         var logFilePath = Path.Combine(wwwRootPath, "log.txt");
 
+         // Capture Request Data
+         var url = context.Request.Path + context.Request.QueryString;
+         var method = context.Request.Method;
+         var queryParams = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "None";
+
+         // Read request body (if any)
+         string bodyContent = "No Body";
+         if (context.Request.ContentLength > 0 &&
+             (method == "POST" || method == "PUT" || method == "PATCH"))
+         {
+             context.Request.EnableBuffering();
+             using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+             bodyContent = await reader.ReadToEndAsync();
+             context.Request.Body.Position = 0; // Reset position for next middleware
+         }
+
+         // Prepare Log Entry in Table Format
+         var logMessage = new StringBuilder();
+         logMessage.AppendLine("====================================================================");
+         logMessage.AppendLine($"Date/Time   : {DateTime.Now}");
+         logMessage.AppendLine($"HTTP Method : {method}");
+         logMessage.AppendLine($"Request URL : {url}");
+         logMessage.AppendLine($"Query Params: {queryParams}");
+         logMessage.AppendLine($"Request Body: {bodyContent}");
+         logMessage.AppendLine($"Exception   : {ex.Message}");
+         logMessage.AppendLine($"Stack Trace : {ex.StackTrace}");
+         logMessage.AppendLine("====================================================================");
+         logMessage.AppendLine();
+
+         await File.AppendAllTextAsync(logFilePath, logMessage.ToString());
+
+         context.Response.StatusCode = 500;
+         context.Response.ContentType = "application/json";
+         await context.Response.WriteAsJsonAsync(new
+         {
+             error = "An unexpected error occurred. Please check the logs."
+         });
+     }
+ });
             //if (app.Environment.IsDevelopment())
             //{
             //    app.UseSwagger();
