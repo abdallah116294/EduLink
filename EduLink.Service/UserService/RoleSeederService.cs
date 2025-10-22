@@ -10,22 +10,60 @@ namespace EduLink.Service.UserService
     public class RoleSeederService
     {
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<RoleSeederService> _logger;
 
-        public RoleSeederService(RoleManager<IdentityRole> roleManager)
+        public RoleSeederService(
+            RoleManager<IdentityRole> roleManager,
+            ILogger<RoleSeederService> logger)
         {
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         public async Task SeedRolesAsync()
         {
-            var roles = new[] { "ADMIN", "ACADEMIC", "NONACADEMIC", "STUDENT" , "PARENT" };
-
-            foreach (var role in roles)
+            try
             {
-                if (!await _roleManager.RoleExistsAsync(role))
+                _logger.LogInformation("Starting role seeding...");
+
+                var roles = new[] { "ADMIN", "ACADEMIC", "NONACADEMIC", "STUDENT", "PARENT" };
+
+                foreach (var roleName in roles)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(role));
+                    try
+                    {
+                        var roleExists = await _roleManager.RoleExistsAsync(roleName);
+                        
+                        if (!roleExists)
+                        {
+                            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                            
+                            if (result.Succeeded)
+                            {
+                                _logger.LogInformation($"Role '{roleName}' created successfully.");
+                            }
+                            else
+                            {
+                                _logger.LogError($"Failed to create role '{roleName}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Role '{roleName}' already exists.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Error creating role '{roleName}'");
+                    }
                 }
+
+                _logger.LogInformation("Role seeding completed.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fatal error during role seeding");
+                throw;
             }
         }
     }
