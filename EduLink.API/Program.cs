@@ -146,7 +146,7 @@ namespace EduLink.API
                  app.UseSwagger();
                  app.UseSwaggerUI();
              }
-            app.MapGet("/",()=>"API is runningg");
+            app.MapGet("/",()=>"API is runningg InSha Allah ✅");
             //app.UseSwagger();
             //app.UseSwaggerUI();
             app.UseHttpsRedirection();
