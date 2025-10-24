@@ -1,29 +1,83 @@
 name: Build, publish and deploy to MonsterASP.NET
-on: [push]
+on: 
+  push:
+    branches:
+      - main  # or master, depending on your default branch
 
 jobs:
   build_and_deploy:
     runs-on: windows-latest
+    
     steps:
-      - uses: actions/checkout@v4
-
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
       - name: Setup .NET 6
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0
+          dotnet-version: '6.0.x'
           
-      - name: Install dependencies
+      - name: Restore dependencies
         run: dotnet restore
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
-
-      - name: Publish
-        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
         
-      # - name: Test with .NET
-      #   run: dotnet test
-
+      - name: Publish
+        run: dotnet publish ./EduLink.API/EduLink.API.csproj --configuration Release --output ./publish --runtime win-x86 --self-contained false
+        
+      - name: Create logs directory
+        run: New-Item -ItemType Directory -Force -Path ./publish/logs
+        shell: pwsh
+        
+      - name: Update appsettings with secrets
+        run: |
+          # Read the appsettings.Production.json file
+          $appsettingsPath = "./publish/appsettings.Production.json"
+          $appsettings = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
+          
+          # Update connection string
+          $appsettings.ConnectionStrings.DefaultConnection = "${{ secrets.CONNECTION_STRING }}"
+          
+          # Update Google configuration
+          $appsettings.Google.ClientId = "${{ secrets.GOOGLE_CLIENT_ID }}"
+          $appsettings.Google.ClientSecret = "${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          
+          # Save the updated file
+          $appsettings | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath -Encoding UTF8
+          
+          Write-Host "appsettings.Production.json updated successfully"
+        shell: pwsh
+        
+     - name: Create web.config with environment variables
+  run: |
+    $webConfig = @'
+    <?xml version="1.0" encoding="utf-8"?>
+    <configuration>
+      <location path="." inheritInChildApplications="false">
+        <system.webServer>
+          <handlers>
+            <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Either" />
+          </handlers>
+          <aspNetCore processPath="dotnet" 
+                      arguments=".\EduLink.API.dll" 
+                      stdoutLogEnabled="true" 
+                      stdoutLogFile=".\logs\stdout" 
+                      hostingModel="inprocess">
+            <environmentVariables>
+              <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+              <environmentVariable name="ConnectionStrings__DefaultConnection" value="${{ secrets.CONNECTION_STRING }}" />
+              <environmentVariable name="Google__ClientId" value="${{ secrets.GOOGLE_CLIENT_ID }}" />
+              <environmentVariable name="Google__ClientSecret" value="${{ secrets.GOOGLE_CLIENT_SECRET }}" />
+            </environmentVariables>
+          </aspNetCore>
+        </system.webServer>
+      </location>
+    </configuration>
+    '@
+    $webConfig | Out-File -FilePath ./publish/web.config -Encoding UTF8
+  shell: pwsh
+        
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
@@ -31,3 +85,4 @@ jobs:
           server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.SERVER_USERNAME }}
           server-password: ${{ secrets.SERVER_PASSWORD }}
+          source-path: ./publish

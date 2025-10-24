@@ -37,9 +37,6 @@ namespace EduLink.API
             builder.Services.AddAppServices(configure);
             builder.Services.AddConnectionString(configure);
             //Google Auth Config
-            var goolgeClinetId=builder.Configuration["Google:ClientId"];
-            var googleClientSecret=builder.Configuration["Google:ClientSecret"];
-            Console.WriteLine($"Google Client ID: {goolgeClinetId}");
             builder.Services.Configure<GoogleAuthConfig>(builder.Configuration.GetSection("Google"));
             builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             #region Authentication  
