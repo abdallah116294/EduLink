@@ -20,56 +20,34 @@ jobs:
           
       - name: Restore dependencies
         run: dotnet restore
+        working-directory: ${{ github.workspace }}
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
+        working-directory: ${{ github.workspace }}
         
       - name: Publish
-        run: dotnet publish ./EduLink.API/EduLink.API.csproj --configuration Release --output ${{ github.workspace }}/publish --runtime win-x86 --self-contained false
-        
-      - name: Verify publish directory
-        run: |
-          Write-Host "Checking publish directory..."
-          if (Test-Path "${{ github.workspace }}/publish") {
-            Write-Host "✓ Publish directory exists"
-            Write-Host "Contents:"
-            Get-ChildItem "${{ github.workspace }}/publish" | Format-Table Name
-          } else {
-            Write-Host "✗ Publish directory NOT found!"
-            exit 1
-          }
-        shell: pwsh
+        run: dotnet publish EduLink.API/EduLink.API.csproj --configuration Release --output publish --runtime win-x86 --self-contained false
+        working-directory: ${{ github.workspace }}
         
       - name: Create logs directory
-        run: New-Item -ItemType Directory -Force -Path "${{ github.workspace }}/publish/logs"
+        run: New-Item -ItemType Directory -Force -Path "publish/logs"
+        working-directory: ${{ github.workspace }}
         shell: pwsh
         
       - name: Update appsettings with secrets
         run: |
-          # Read the appsettings.Production.json file
-          $appsettingsPath = "${{ github.workspace }}/publish/appsettings.Production.json"
-          
-          if (-not (Test-Path $appsettingsPath)) {
-            Write-Host "Error: appsettings.Production.json not found at $appsettingsPath"
-            exit 1
-          }
-          
+          $appsettingsPath = "publish/appsettings.Production.json"
           $appsettings = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
-          
-          # Update connection string
           $appsettings.ConnectionStrings.DefaultConnection = "${{ secrets.CONNECTION_STRING }}"
-          
-          # Update Google configuration
           $appsettings.Google.ClientId = "${{ secrets.GOOGLE_CLIENT_ID }}"
           $appsettings.Google.ClientSecret = "${{ secrets.GOOGLE_CLIENT_SECRET }}"
-          
-          # Save the updated file
           $appsettings | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath -Encoding UTF8
-          
           Write-Host "✓ appsettings.Production.json updated successfully"
+        working-directory: ${{ github.workspace }}
         shell: pwsh
         
-      - name: Create web.config with environment variables
+      - name: Create web.config
         run: |
           $webConfig = @'
           <?xml version="1.0" encoding="utf-8"?>
@@ -86,23 +64,15 @@ jobs:
                             hostingModel="inprocess">
                   <environmentVariables>
                     <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
-                    <environmentVariable name="ConnectionStrings__DefaultConnection" value="${{ secrets.CONNECTION_STRING }}" />
-                    <environmentVariable name="Google__ClientId" value="${{ secrets.GOOGLE_CLIENT_ID }}" />
-                    <environmentVariable name="Google__ClientSecret" value="${{ secrets.GOOGLE_CLIENT_SECRET }}" />
                   </environmentVariables>
                 </aspNetCore>
               </system.webServer>
             </location>
           </configuration>
           '@
-          $webConfig | Out-File -FilePath "${{ github.workspace }}/publish/web.config" -Encoding UTF8
+          $webConfig | Out-File -FilePath "publish/web.config" -Encoding UTF8
           Write-Host "✓ web.config created successfully"
-        shell: pwsh
-        
-      - name: List publish directory contents
-        run: |
-          Write-Host "Final publish directory contents:"
-          Get-ChildItem "${{ github.workspace }}/publish" -Recurse | Select-Object FullName | Format-Table
+        working-directory: ${{ github.workspace }}
         shell: pwsh
         
       - name: Deploy to MonsterASP.NET via WebDeploy
@@ -112,4 +82,4 @@ jobs:
           server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.SERVER_USERNAME }}
           server-password: ${{ secrets.SERVER_PASSWORD }}
-          source-path: ${{ github.workspace }}/publish
+          source-path: publish
