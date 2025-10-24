@@ -1,8 +1,9 @@
 name: Build, publish and deploy to MonsterASP.NET
+
 on: 
   push:
     branches:
-      - main  # or master, depending on your default branch
+      - main
 
 jobs:
   build_and_deploy:
@@ -49,34 +50,35 @@ jobs:
           Write-Host "appsettings.Production.json updated successfully"
         shell: pwsh
         
-     - name: Create web.config with environment variables
-  run: |
-    $webConfig = @'
-    <?xml version="1.0" encoding="utf-8"?>
-    <configuration>
-      <location path="." inheritInChildApplications="false">
-        <system.webServer>
-          <handlers>
-            <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Either" />
-          </handlers>
-          <aspNetCore processPath="dotnet" 
-                      arguments=".\EduLink.API.dll" 
-                      stdoutLogEnabled="true" 
-                      stdoutLogFile=".\logs\stdout" 
-                      hostingModel="inprocess">
-            <environmentVariables>
-              <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
-              <environmentVariable name="ConnectionStrings__DefaultConnection" value="${{ secrets.CONNECTION_STRING }}" />
-              <environmentVariable name="Google__ClientId" value="${{ secrets.GOOGLE_CLIENT_ID }}" />
-              <environmentVariable name="Google__ClientSecret" value="${{ secrets.GOOGLE_CLIENT_SECRET }}" />
-            </environmentVariables>
-          </aspNetCore>
-        </system.webServer>
-      </location>
-    </configuration>
-    '@
-    $webConfig | Out-File -FilePath ./publish/web.config -Encoding UTF8
-  shell: pwsh
+      - name: Create web.config with environment variables
+        run: |
+          $webConfig = @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <location path="." inheritInChildApplications="false">
+              <system.webServer>
+                <handlers>
+                  <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Either" />
+                </handlers>
+                <aspNetCore processPath="dotnet" 
+                            arguments=".\EduLink.API.dll" 
+                            stdoutLogEnabled="true" 
+                            stdoutLogFile=".\logs\stdout" 
+                            hostingModel="inprocess">
+                  <environmentVariables>
+                    <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+                    <environmentVariable name="ConnectionStrings__DefaultConnection" value="${{ secrets.CONNECTION_STRING }}" />
+                    <environmentVariable name="Google__ClientId" value="${{ secrets.GOOGLE_CLIENT_ID }}" />
+                    <environmentVariable name="Google__ClientSecret" value="${{ secrets.GOOGLE_CLIENT_SECRET }}" />
+                  </environmentVariables>
+                </aspNetCore>
+              </system.webServer>
+            </location>
+          </configuration>
+          '@
+          $webConfig | Out-File -FilePath ./publish/web.config -Encoding UTF8
+          Write-Host "web.config created successfully"
+        shell: pwsh
         
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
