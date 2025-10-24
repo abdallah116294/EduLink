@@ -141,12 +141,12 @@ namespace EduLink.API
             }
             #endregion
             var enableSwagger= builder.Configuration.GetValue<bool>("EnableSwagger", false);
-            if (app.Environment.IsDevelopment()|| enableSwagger)
+            if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
              {
                  app.UseSwagger();
                  app.UseSwaggerUI();
              }
-
+            app.MapGet("/",()=>"API is runningg");
             //app.UseSwagger();
             //app.UseSwaggerUI();
             app.UseHttpsRedirection();
