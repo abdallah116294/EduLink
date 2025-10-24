@@ -140,15 +140,15 @@ namespace EduLink.API
                 await roleSeeder.SeedRolesAsync();
             }
             #endregion
-            
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
+            var enableSwagger= builder.Configuration.GetValue<bool>("EnableSwagger", false);
+            if (app.Environment.IsDevelopment()|| enableSwagger)
+             {
+                 app.UseSwagger();
+                 app.UseSwaggerUI();
+             }
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            //app.UseSwagger();
+            //app.UseSwaggerUI();
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseCors("SignalRCorsPolicy");
