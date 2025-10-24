@@ -8,9 +8,17 @@ namespace EduLink.API.Extensions
     {
         public static void AddConnectionString(this IServiceCollection service,IConfiguration configuration)
         {
+            var connectionString = configuration.GetConnectionString("EduLinkConnectionStringProduction");
+            Console.WriteLine(connectionString);
             service.AddDbContext<EduLinkDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("EduLinkConnectionStringProduction"));
+                options.UseSqlServer(connectionString!, sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null);
+                });
             });
             service.AddIdentityCore<User>(u =>
             {

@@ -28,6 +28,7 @@ namespace EduLink.API
                         .AllowAnyHeader();   // allow all headers
                 });
             });
+            builder.Configuration.AddUserSecrets<Program>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -36,7 +37,10 @@ namespace EduLink.API
             builder.Services.AddAppServices(configure);
             builder.Services.AddConnectionString(configure);
             //Google Auth Config
-            builder.Services.Configure<GoogleAuthConfig>(configure.GetSection("Google"));
+            var goolgeClinetId=builder.Configuration["Google:ClientId"];
+            var googleClientSecret=builder.Configuration["Google:ClientSecret"];
+            Console.WriteLine($"Google Client ID: {goolgeClinetId}");
+            builder.Services.Configure<GoogleAuthConfig>(builder.Configuration.GetSection("Google"));
             builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             #region Authentication  
             var JWTSection = configure.GetSection("JWT");
@@ -77,7 +81,7 @@ namespace EduLink.API
             #endregion
             var app = builder.Build();
              var wwwRootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
- if (!Directory.Exists(wwwRootPath))
+  if (!Directory.Exists(wwwRootPath))
  {
      Directory.CreateDirectory(wwwRootPath);
  }
