@@ -17,6 +17,11 @@ jobs:
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
+      - name: Add Firebase JSON Secret
+        shell: pwsh
+        run: |
+          $env:FIREBASE_CONFIG_JSON = "${{ secrets.FIREBASE_CONFIG_JSON }}"
+          echo "✓ Firebase config loaded from Secrets"
 
       - name: Publish
         run: dotnet publish EduLink.API/EduLink.API.csproj --configuration Release --output publish --runtime win-x86
@@ -43,7 +48,7 @@ jobs:
                   <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Either" />
                 </handlers>
                 <aspNetCore processPath="dotnet" 
-                            arguments=".\EduLink.API.dll" 
+                            arguments=".\EduLink.API\EduLink.API.dll" 
                             stdoutLogEnabled="true" 
                             stdoutLogFile=".\logs\stdout" 
                             hostingModel="inprocess">
