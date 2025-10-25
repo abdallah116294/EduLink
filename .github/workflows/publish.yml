@@ -20,15 +20,18 @@ jobs:
 
       - name: Publish
         run: dotnet publish EduLink.API/EduLink.API.csproj --configuration Release --output publish --runtime win-x86
-           # Inject Connection String (create appsettings.Production.json)
       - name: Inject connection string from Secrets
+        shell: pwsh
         run: |
-          echo "{
-            \"ConnectionStrings\": {
-              \"DefaultConnection\": \"${{ secrets.EDULINK_CONNECTION_STRING_PRODUCTION }}\"
+          $json = @"
+          {
+            "ConnectionStrings": {
+              "DefaultConnection": "${{ secrets.EDULINK_CONNECTION_STRING_PRODUCTION }}"
             }
-          }" > ./publish/appsettings.Production.json
-        shell: pwsh  
+          }
+          "@
+          $json | Out-File -FilePath "./publish/appsettings.Production.json" -Encoding utf8
+          Write-Host "✓ appsettings.Production.json created successfully"
       - name: Create web.config
         run: |
           $webConfig = @'
