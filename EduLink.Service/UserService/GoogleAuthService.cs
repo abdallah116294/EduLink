@@ -33,7 +33,7 @@ namespace EduLink.Service.UserService
             {
                 FirebaseApp.Create(new AppOptions()
                 {
-                    Credential = GoogleCredential.FromFile("C:\\Users\\mobi lap\\Downloads\\edulink-d8baa-firebase-adminsdk-fbsvc-2f0b5512f0.json"), // Download from Firebase Console
+                    Credential = GoogleCredential.FromFile("C:\\Users\\mobi lap\\Downloads\\edulink-d8baa-firebase-adminsdk-fbsvc-be811598c0.json"), // Download from Firebase Console
                     ProjectId = "edulink-d8baa"
                 });
             }
