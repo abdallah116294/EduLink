@@ -17,12 +17,6 @@ jobs:
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
-      - name: Add Firebase JSON Secret
-        shell: pwsh
-        run: |
-          $env:FIREBASE_CONFIG_JSON = "${{ secrets.FIREBASE_CONFIG_JSON }}"
-          echo "✓ Firebase config loaded from Secrets"
-
       - name: Publish
         run: dotnet publish EduLink.API/EduLink.API.csproj --configuration Release --output publish --runtime win-x86
       - name: Inject connection string from Secrets
@@ -37,6 +31,20 @@ jobs:
           "@
           $json | Out-File -FilePath "./publish/appsettings.Production.json" -Encoding utf8
           Write-Host "✓ appsettings.Production.json created successfully"
+      - name: Create Firebase config file from secret
+        shell: pwsh
+        run: |
+         New-Item -ItemType Directory -Path "./publish/firebase" -Force | Out-Null
+         $firebaseConfig = '${{ secrets.FIREBASE_CONFIG_JSON }}' | ConvertFrom-Json | ConvertTo-Json -Compress
+         Set-Content -Path "./publish/firebase/firebase-config.json" -Value $firebaseConfig -Encoding utf8
+         Write-Host "✓ Firebase config file created successfully"
+    
+      # - name: Create Firebase config file from secret
+      #   shell: pwsh
+      #   run: |
+      #     New-Item -ItemType Directory -Path "./publish/firebase" -Force | Out-Null
+      #     Set-Content -Path "./publish/firebase/firebase-config.json" -Value '${{ secrets.FIREBASE_CONFIG_JSON }}' -Encoding utf8
+      #     Write-Host "✓ Firebase config file created successfully"
       - name: Create web.config
         run: |
           $webConfig = @'
