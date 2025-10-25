@@ -31,9 +31,10 @@ namespace EduLink.Service.UserService
             _googleAuthConfig = googleAuthConfig.Value;
             if(FirebaseApp.DefaultInstance == null)
             {
+                var path = Path.Combine(AppContext.BaseDirectory, "Firebase", "edulink-d8baa-firebase-adminsdk-fbsvc-be811598c0.json");
                 FirebaseApp.Create(new AppOptions()
                 {
-                    Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("FIREBASE_CONFIG_JSON")), // Download from Firebase Console
+                    Credential = GoogleCredential.FromFile(path), // Download from Firebase Console
                     ProjectId = "edulink-d8baa"
                 });
             }
